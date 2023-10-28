@@ -14,7 +14,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <!-- Используется для всех библиотек Spring Boot -->
-        <version>3.1.5</version>
+        <version>3.0.2</version>
         <relativePath/>
     </parent>
 
@@ -25,6 +25,7 @@
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <hibernate-validator.version>8.0.1.Final</hibernate-validator.version>
         <jakarta-validation.version>3.0.2</jakarta-validation.version>
+        <jjwt.version>0.11.5</jjwt.version>
     </properties>
 
     <dependencies>
@@ -93,7 +94,35 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
-            <version>3.1.4</version>
+        </dependency>
+
+        <!-- Spring Boot Configuration Processor -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+        </dependency>
+
+        <!-- JJWT API -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>${jjwt.version}</version>
+        </dependency>
+
+        <!-- JJWT Impl -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- JJWT Jackson -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>${jjwt.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
 

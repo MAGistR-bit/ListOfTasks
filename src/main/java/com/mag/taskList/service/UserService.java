@@ -6,14 +6,14 @@ public interface UserService {
     /**
      * Получить пользователя по идентификатору
      * @param id идентификатор пользователя
-     * @return пользователь
+     * @return объект User
      */
     User getById(Long id);
 
     /**
      * Получить пользователя
      * @param username имя пользователя
-     * @return пользователь
+     * @return объект User
      */
     User getByUsername(String username);
 
