@@ -1,5 +1,7 @@
 package com.mag.taskList.config;
 
+import com.mag.taskList.web.security.JwtTokenFilter;
+import com.mag.taskList.web.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
+    private final JwtTokenProvider tokenProvider;
     private final ApplicationContext applicationContext;
 
     @Bean
