@@ -60,6 +60,7 @@ public class ApplicationConfig {
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
+                //  Остальные запросы будут требовать аутентификацию (проверку подлинности)
                 .anyRequest().authenticated()
                 .and()
                 // Отключить возможность посещать анонимно
