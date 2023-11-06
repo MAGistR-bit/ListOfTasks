@@ -17,10 +17,10 @@ public interface TaskRepository {
     /**
      * Получает список задач, закрепленных за определенным пользователем
      *
-     * @param id идентификатор пользователя
+     * @param userId идентификатор пользователя
      * @return список задач
      */
-    List<Task> findAllByUserId(Long id);
+    List<Task> findAllByUserId(Long userId);
 
     /**
      * Закрепляет задачу за определенным пользователем
