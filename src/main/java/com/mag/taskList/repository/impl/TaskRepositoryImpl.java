@@ -86,6 +86,12 @@ public class TaskRepositoryImpl implements TaskRepository {
             WHERE id = ?
             """;
 
+    /**
+     * Отображает информацию про определенную задачу
+     *
+     * @param id идентификатор задачи
+     * @return объект класса {@link Optional}
+     */
     @Override
     public Optional<Task> findById(Long id) {
         try {
@@ -105,6 +111,12 @@ public class TaskRepositoryImpl implements TaskRepository {
         }
     }
 
+    /**
+     * Получает задачи, закрепленные за определенным пользователем
+     *
+     * @param userId идентификатор пользователя
+     * @return список задач
+     */
     @Override
     public List<Task> findAllByUserId(Long userId) {
         try {
@@ -124,6 +136,12 @@ public class TaskRepositoryImpl implements TaskRepository {
         }
     }
 
+    /**
+     * Метод, который назначает задачу пользователю
+     *
+     * @param taskId идентификатор задачи
+     * @param userId идентификатор пользователя
+     */
     @Override
     public void assignToUserById(Long taskId, Long userId) {
         try {
@@ -137,6 +155,11 @@ public class TaskRepositoryImpl implements TaskRepository {
         }
     }
 
+    /**
+     * Обновляет данные о задаче
+     *
+     * @param task задача, которая ожидает обновление в системе
+     */
     @Override
     public void update(Task task) {
         try {
@@ -166,13 +189,64 @@ public class TaskRepositoryImpl implements TaskRepository {
         }
     }
 
+    /**
+     * Метод, который создает задачу (добавляет в систему)
+     *
+     * @param task новая задача
+     */
     @Override
     public void create(Task task) {
-        // TODO
+        try {
+            // Получить соединение
+            Connection connection = dataSourceConfig.getConnection();
+            // Подготовить PreparedStatement
+            PreparedStatement statement = connection.prepareStatement(CREATE, PreparedStatement.RETURN_GENERATED_KEYS);
+
+            // Установить значения для statement
+            statement.setString(1, task.getTitle());
+
+            // Описание может быть null, поэтому необходимо произвести проверку
+            if (task.getDescription() == null) {
+                statement.setNull(2, Types.VARCHAR);
+            } else {
+                statement.setString(2, task.getDescription());
+            }
+
+            // Срок жизни задачи может быть null
+            if (task.getExpirationDate() == null) {
+                statement.setNull(3, Types.TIMESTAMP);
+            } else {
+                statement.setTimestamp(3, Timestamp.valueOf(task.getExpirationDate()));
+            }
+
+            statement.setString(4, task.getStatus().name());
+            // Используется для выполнения операторов INSERT, UPDATE или DELETE
+            statement.executeUpdate();
+
+            try (ResultSet rs = statement.getGeneratedKeys()) {
+                rs.next();
+                task.setId(rs.getLong(1));
+            }
+        } catch (SQLException throwables) {
+            throw new ResourceMappingException("Error while creating task.");
+        }
     }
 
+    /**
+     * Удаляет задачу
+     *
+     * @param id идентификатор задачи, которую следует удалить
+     */
     @Override
     public void delete(Long id) {
-        // TODO
+        try {
+            Connection connection = dataSourceConfig.getConnection();
+            PreparedStatement statement = connection.prepareStatement(DELETE);
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        } catch (SQLException throwables) {
+            throw new ResourceMappingException("Error while deleting task.");
+        }
     }
+
 }
