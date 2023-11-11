@@ -1,12 +1,19 @@
 package com.mag.taskList.repository.impl;
 
+import com.mag.taskList.domain.exception.ResourceMappingException;
+import com.mag.taskList.domain.exception.ResourceNotFoundException;
 import com.mag.taskList.domain.user.Role;
 import com.mag.taskList.domain.user.User;
 import com.mag.taskList.repository.DataSourceConfig;
 import com.mag.taskList.repository.UserRepository;
+import com.mag.taskList.repository.mappers.UserRowMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 
 @Repository
@@ -27,7 +34,7 @@ public class UserRepositoryImpl implements UserRepository {
                    u.name            as user_name,
                    u.username        as user_username,
                    u.password        as user_password,
-                   ur.role           as user_role,
+                   ur.role           as user_role_role,
                    t.id              as task_id,
                    t.title           as task_title,
                    t.description     as task_description,
@@ -49,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
                    u.name            as user_name,
                    u.username        as user_username,
                    u.password        as user_password,
-                   ur.role           as user_role,
+                   ur.role           as user_role_role,
                    t.id              as task_id,
                    t.title           as task_title,
                    t.description     as task_description,
@@ -109,14 +116,54 @@ public class UserRepositoryImpl implements UserRepository {
             WHERE id = ?
             """;
 
+    /**
+     * Находит пользователя по идентификатору
+     * @param id идентификатор пользователя
+     * @return Optional
+     */
     @Override
     public Optional<User> findById(Long id) {
-        return Optional.empty();
+        try {
+            Connection connection = dataSourceConfig.getConnection();
+            // Надо передвигаться вперед и назад (по ResultSet), поэтому используем
+            // дополнительные параметры
+            PreparedStatement statement = connection.prepareStatement(FIND_BY_ID,
+                    ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY);
+
+            statement.setLong(1, id);
+            try (ResultSet rs = statement.executeQuery()){
+                return Optional.ofNullable(UserRowMapper.mapRow(rs));
+            }
+        } catch (SQLException throwables) {
+            throw new ResourceMappingException("Exception while finding " +
+                    "user by id.");
+        }
     }
 
+    /**
+     * Находит пользователя по username
+     * @param username имя пользователя
+     * @return Optional
+     */
     @Override
     public Optional<User> findByUsername(String username) {
-        return Optional.empty();
+        try {
+            Connection connection = dataSourceConfig.getConnection();
+            // Надо передвигаться вперед и назад (по ResultSet), поэтому используем
+            // дополнительные параметры
+            PreparedStatement statement = connection.prepareStatement(FIND_BY_USERNAME,
+                    ResultSet.TYPE_SCROLL_INSENSITIVE,
+                    ResultSet.CONCUR_READ_ONLY);
+
+            statement.setString(1, username);
+            try (ResultSet rs = statement.executeQuery()){
+                return Optional.ofNullable(UserRowMapper.mapRow(rs));
+            }
+        } catch (SQLException throwables) {
+            throw new ResourceMappingException("Exception while finding " +
+                    "user by username.");
+        }
     }
 
     @Override
