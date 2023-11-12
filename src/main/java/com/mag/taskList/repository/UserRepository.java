@@ -50,5 +50,9 @@ public interface UserRepository {
      */
     boolean isTaskOwner(Long userId, Long taskId);
 
+    /**
+     * Удаляет пользователя по его идентификатору
+     * @param id идентификатор пользователя
+     */
     void delete (Long id);
 }

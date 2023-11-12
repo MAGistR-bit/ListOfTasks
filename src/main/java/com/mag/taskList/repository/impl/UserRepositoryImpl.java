@@ -1,7 +1,6 @@
 package com.mag.taskList.repository.impl;
 
 import com.mag.taskList.domain.exception.ResourceMappingException;
-import com.mag.taskList.domain.exception.ResourceNotFoundException;
 import com.mag.taskList.domain.user.Role;
 import com.mag.taskList.domain.user.User;
 import com.mag.taskList.repository.DataSourceConfig;
@@ -118,6 +117,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     /**
      * Находит пользователя по идентификатору
+     *
      * @param id идентификатор пользователя
      * @return Optional
      */
@@ -132,7 +132,7 @@ public class UserRepositoryImpl implements UserRepository {
                     ResultSet.CONCUR_READ_ONLY);
 
             statement.setLong(1, id);
-            try (ResultSet rs = statement.executeQuery()){
+            try (ResultSet rs = statement.executeQuery()) {
                 return Optional.ofNullable(UserRowMapper.mapRow(rs));
             }
         } catch (SQLException throwables) {
@@ -143,6 +143,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     /**
      * Находит пользователя по username
+     *
      * @param username имя пользователя
      * @return Optional
      */
@@ -157,7 +158,7 @@ public class UserRepositoryImpl implements UserRepository {
                     ResultSet.CONCUR_READ_ONLY);
 
             statement.setString(1, username);
-            try (ResultSet rs = statement.executeQuery()){
+            try (ResultSet rs = statement.executeQuery()) {
                 return Optional.ofNullable(UserRowMapper.mapRow(rs));
             }
         } catch (SQLException throwables) {
@@ -166,28 +167,113 @@ public class UserRepositoryImpl implements UserRepository {
         }
     }
 
+    /**
+     * Обновляет информацию о пользователе
+     *
+     * @param user пользователь, который существует в системе
+     */
     @Override
     public void update(User user) {
+        try {
+            Connection connection = dataSourceConfig.getConnection();
+            PreparedStatement statement = connection.prepareStatement(UPDATE);
 
+            statement.setString(1, user.getName());
+            statement.setString(2, user.getUsername());
+            statement.setString(3, user.getPassword());
+            statement.setLong(4, user.getId());
+            statement.executeUpdate();
+        } catch (SQLException throwables) {
+            throw new ResourceMappingException("Exception while updating user.");
+        }
     }
 
+    /**
+     * Добавляет нового пользователя
+     *
+     * @param user новый пользователь
+     */
     @Override
     public void create(User user) {
+        try {
+            Connection connection = dataSourceConfig.getConnection();
+            PreparedStatement statement = connection.prepareStatement(CREATE,
+                    PreparedStatement.RETURN_GENERATED_KEYS);
 
+            statement.setString(1, user.getName());
+            statement.setString(2, user.getUsername());
+            statement.setString(3, user.getPassword());
+            statement.executeUpdate();
+            try (ResultSet rs = statement.getGeneratedKeys()) {
+                rs.next();
+                user.setId(rs.getLong(1));
+            }
+        } catch (SQLException throwables) {
+            throw new ResourceMappingException("Exception while creating user.");
+        }
     }
 
+    /**
+     * Назначает пользователю определенную роль
+     *
+     * @param userId идентификатор пользователя
+     * @param role   роль
+     */
     @Override
     public void insertUserRole(Long userId, Role role) {
-
+        try {
+            Connection connection = dataSourceConfig.getConnection();
+            PreparedStatement statement = connection.prepareStatement(INSERT_USER_ROLE);
+            statement.setLong(1, userId);
+            statement.setString(2, role.name());
+            statement.executeUpdate();
+        } catch (SQLException throwables) {
+            throw new ResourceMappingException("Exception while inserting user role.");
+        }
     }
 
+    /**
+     * Проверяет, является ли пользователь владельцем задачи
+     *
+     * @param userId идентификатор пользователя
+     * @param taskId идентификатор задачи
+     * @return true - пользователь является владельцем,
+     * false - пользователь не является владельцем
+     */
     @Override
     public boolean isTaskOwner(Long userId, Long taskId) {
-        return false;
+        try {
+            Connection connection = dataSourceConfig.getConnection();
+            PreparedStatement statement = connection.prepareStatement(IS_TASK_OWNER);
+            statement.setLong(1, userId);
+            statement.setLong(2, taskId);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                rs.next();
+                // Получить значение из 1-й колонки
+                return rs.getBoolean(1);
+            }
+
+        } catch (SQLException throwables) {
+            throw new ResourceMappingException("Exception while checking " +
+                    "if user is task owner...");
+        }
     }
 
+    /**
+     * Удаляет пользователя по его идентификатору
+     * @param id идентификатор пользователя
+     */
     @Override
     public void delete(Long id) {
-
+        try {
+            Connection connection = dataSourceConfig.getConnection();
+            PreparedStatement statement = connection.prepareStatement(DELETE);
+            statement.setLong(1, id);
+            statement.executeUpdate();
+        } catch (SQLException throwables) {
+            throw new ResourceMappingException("Exception while deleting user.");
+        }
     }
+
 }
