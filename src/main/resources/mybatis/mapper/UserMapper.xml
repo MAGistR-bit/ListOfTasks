@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Используем сайт mybatis.org -->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- Указываем ссылку на определенный интерфейс репозитория (связали репозиторий с mapper'ом) -->
+<mapper namespace="com.mag.taskList.repository.UserRepository">
+    <resultMap id="UserResultMap" type="com.mag.taskList.domain.user.User" autoMapping="false">
+        <!--  user_id (из select-запроса) будет отображаться на поле id объекта User -->
+        <id property="id" column="user_id"/>
+        <result property="name" column="user_name"/>
+        <result property="username" column="user_username"/>
+        <result property="password" column="user_password"/>
+        <!--  Назначить роли  -->
+        <collection property="roles"
+                    ofType="com.mag.taskList.domain.user.Role"
+                    autoMapping="false">
+            <!--  Enum (перечисление) имеет единственное поле name          -->
+            <result property="name" column="user_role_role"/>
+        </collection>
+        <!-- Обращаюсь к TaskResultMap, чтобы не описывать все поля объекта Task  -->
+        <collection property="tasks"
+                    ofType="com.mag.taskList.domain.task.Task"
+                    resultMap="com.mag.taskList.repository.TaskRepository.TaskResultMap"
+                    autoMapping="false"/>
+
+    </resultMap>
+</mapper>
