@@ -1,6 +1,7 @@
 package com.mag.taskList.repository;
 
 import com.mag.taskList.domain.task.Task;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,7 @@ public interface TaskRepository {
      * @param taskId идентификатор задачи
      * @param userId идентификатор пользователя
      */
-    void assignToUserById(Long taskId, Long userId);
+    void assignToUserById(@Param("taskId") Long taskId, @Param("userId") Long userId);
 
     /**
      * Обновляет задачу (редактирование задачи)

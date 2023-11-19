@@ -15,7 +15,7 @@
         <collection property="roles"
                     ofType="com.mag.taskList.domain.user.Role"
                     autoMapping="false">
-            <!--  Enum (перечисление) имеет единственное поле name          -->
+            <!--  Enum (перечисление) имеет единственное поле name -->
             <result property="name" column="user_role_role"/>
         </collection>
         <!-- Обращаюсь к TaskResultMap, чтобы не описывать все поля объекта Task  -->
@@ -25,4 +25,23 @@
                     autoMapping="false"/>
 
     </resultMap>
+
+    <select id="findById" resultMap="UserResultMap">
+        SELECT u.id as user_id,
+        u.name as user_name,
+        u.username as user_username,
+        u.password as user_password,
+        ur.role as user_role_role,
+        t.id as task_id,
+        t.title as task_title,
+        t.description as task_description,
+        t.expiration_date as task_expiration_date,
+        t.status as task_status
+        FROM users u
+        LEFT JOIN users_roles ur on u.id = ur.user_id
+        LEFT JOIN users_tasks ut on u.id = ut.user_id
+        LEFT JOIN tasks t on t.id = ut.task_id
+        WHERE u.id = #{id}
+    </select>
+
 </mapper>
