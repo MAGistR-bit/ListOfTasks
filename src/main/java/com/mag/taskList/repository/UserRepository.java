@@ -4,7 +4,10 @@ import java.util.Optional;
 
 import com.mag.taskList.domain.user.Role;
 import com.mag.taskList.domain.user.User;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+@Mapper
 public interface UserRepository {
 
     /**
@@ -38,7 +41,7 @@ public interface UserRepository {
      * @param userId идентификатор пользователя
      * @param role роль
      */
-    void insertUserRole(Long userId, Role role);
+    void insertUserRole(@Param("userId") Long userId, @Param("role") Role role);
 
     /**
      * Проверка безопасности. Пользователь не должен
@@ -48,7 +51,7 @@ public interface UserRepository {
      * @param taskId идентификатор задачи
      * @return true или false
      */
-    boolean isTaskOwner(Long userId, Long taskId);
+    boolean isTaskOwner(@Param("userId") Long userId, @Param("taskId") Long taskId);
 
     /**
      * Удаляет пользователя по его идентификатору
