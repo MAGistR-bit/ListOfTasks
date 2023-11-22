@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - includeAll:
+      # Путь для хранения changeset
+      path: /changesets
+      # Указывает путь относительно той папки, в которой располагается changeLog
+      relativeToChangelogFile: true

@@ -6,9 +6,16 @@ spring:
     driver-class-name: org.postgresql.Driver
   sql:
     init:
-      mode: always
+      mode: never
       continue-on-error: false
-#      data-locations: classpath:demo_data.sql
+  #      data-locations: classpath:demo_data.sql
+  liquibase:
+    # Файл конфигурации Liquibase расположен по следующему пути
+    change-log: classpath:liquibase/db.changelog.yaml
+    # Сообщаем приложению, что Liquibase будет работать
+    enabled: true
+    # Данные будут сохранены в эту схему
+    default-schema: tasklist
 mybatis:
   mapper-locations: classpath:mybatis/mapper/*.xml
 security:
