@@ -2,6 +2,12 @@ package com.mag.taskList.config;
 
 import com.mag.taskList.web.security.JwtTokenFilter;
 import com.mag.taskList.web.security.JwtTokenProvider;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +42,31 @@ public class ApplicationConfig {
         return configuration.getAuthenticationManager();
     }
 
+    /**
+     * Конфигурация Swagger UI
+     *
+     * @return OpenAPI
+     */
+    @Bean
+    public OpenAPI openAPI() {
+        return new OpenAPI()
+                .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
+                .components(new Components()
+                                .addSecuritySchemes("bearerAuth",
+                                        new SecurityScheme()
+                                                .type(SecurityScheme.Type.HTTP)
+                                                .scheme("bearer")
+                                                .bearerFormat("JWT")
+                                )
+                        // Добавляем информацию о приложении
+                ).info(new Info()
+                        .title("Task List API")
+                        .description("Spring Boot Application")
+                        .version("1.0")
+                        .contact(new Contact().name("Mikhail"))
+                );
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -59,6 +90,7 @@ public class ApplicationConfig {
                 .and()
                 .authorizeHttpRequests()
                 .requestMatchers("/api/v1/auth/**").permitAll()
+                // Разрешить пользователям доступ к Swagger UI
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
                 //  Остальные запросы будут требовать аутентификацию (проверку подлинности)
