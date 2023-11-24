@@ -104,6 +104,4 @@ public class ControllerAdvice {
     public ExceptionBody handleException(Exception e) {
         return new ExceptionBody("Internal error.");
     }
-
-
 }

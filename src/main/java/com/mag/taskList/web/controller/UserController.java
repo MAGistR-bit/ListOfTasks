@@ -10,6 +10,7 @@ import com.mag.taskList.web.dto.validation.OnCreate;
 import com.mag.taskList.web.dto.validation.OnUpdate;
 import com.mag.taskList.web.mappers.TaskMapper;
 import com.mag.taskList.web.mappers.UserMapper;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +32,7 @@ public class UserController {
     private final TaskMapper taskMapper;
 
     @PutMapping
+    @Operation(summary = "Update user")
     public UserDTO update(@Validated(OnUpdate.class) @RequestBody UserDTO dto) {
         User user = userMapper.toEntity(dto);
         User updatedUser = userService.update(user);
@@ -39,6 +41,7 @@ public class UserController {
 
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get UserDTO by id")
     public UserDTO getById(@PathVariable Long id) {
         // Получить пользователя
         User user = userService.getById(id);
@@ -47,6 +50,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Delete user by id")
     public void deleteById(@PathVariable Long id) {
         userService.delete(id);
     }
@@ -58,6 +62,7 @@ public class UserController {
      * @return список задач
      */
     @GetMapping("/{id}/tasks")
+    @Operation(summary = "Get all User tasks")
     public List<TaskDTO> getTasksByUserId(@PathVariable Long id) {
         // Получить список задач
         List<Task> tasksList = taskService.getAllByUserId(id);
@@ -67,6 +72,7 @@ public class UserController {
 
 
     @PostMapping("/{id}/tasks")
+    @Operation(summary = "Add task to user")
     public TaskDTO createTask(@PathVariable Long id,
                               @Validated(OnCreate.class) @RequestBody TaskDTO dto) {
 
