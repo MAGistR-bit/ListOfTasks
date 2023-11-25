@@ -13,6 +13,7 @@ import com.mag.taskList.web.mappers.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,7 @@ public class UserController {
 
     @PutMapping
     @Operation(summary = "Update user")
+    @PreAuthorize("@customSecurityExpression.canAccessUser(#dto.id)")
     public UserDTO update(@Validated(OnUpdate.class) @RequestBody UserDTO dto) {
         User user = userMapper.toEntity(dto);
         User updatedUser = userService.update(user);
@@ -42,6 +44,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get UserDTO by id")
+    @PreAuthorize("@customSecurityExpression.canAccessUser(#id)")
     public UserDTO getById(@PathVariable Long id) {
         // Получить пользователя
         User user = userService.getById(id);
@@ -51,6 +54,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete user by id")
+    @PreAuthorize("@customSecurityExpression.canAccessUser(#id)")
     public void deleteById(@PathVariable Long id) {
         userService.delete(id);
     }
@@ -63,6 +67,7 @@ public class UserController {
      */
     @GetMapping("/{id}/tasks")
     @Operation(summary = "Get all User tasks")
+    @PreAuthorize("@customSecurityExpression.canAccessUser(#id)")
     public List<TaskDTO> getTasksByUserId(@PathVariable Long id) {
         // Получить список задач
         List<Task> tasksList = taskService.getAllByUserId(id);
@@ -70,9 +75,15 @@ public class UserController {
         return taskMapper.toDto(tasksList);
     }
 
-
+    /**
+     * Метод, который позволяет закрепить задачу за определенным пользователем
+     * @param id идентификатор пользователя
+     * @param dto объект TaskDTO, который мы получаем от пользователя
+     * @return TaskDTO
+     */
     @PostMapping("/{id}/tasks")
     @Operation(summary = "Add task to user")
+    @PreAuthorize("@customSecurityExpression.canAccessUser(#id)")
     public TaskDTO createTask(@PathVariable Long id,
                               @Validated(OnCreate.class) @RequestBody TaskDTO dto) {
 
