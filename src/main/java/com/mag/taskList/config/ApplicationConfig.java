@@ -2,6 +2,7 @@ package com.mag.taskList.config;
 
 import com.mag.taskList.web.security.JwtTokenFilter;
 import com.mag.taskList.web.security.JwtTokenProvider;
+import com.mag.taskList.web.security.expression.CustomSecurityExceptionHandler;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -14,6 +15,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -28,7 +31,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor(onConstructor = @__(@Lazy))
 public class ApplicationConfig {
 
@@ -43,6 +46,19 @@ public class ApplicationConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
+    }
+
+    /**
+     * Bean, который отвечает за конфигурацию
+     * {@link CustomSecurityExceptionHandler}
+     * @return MethodSecurityExpressionHandler
+     */
+    @Bean
+    public MethodSecurityExpressionHandler expressionHandler() {
+        // Создать объект CustomSecurityExceptionHandler
+        DefaultMethodSecurityExpressionHandler expressionHandler = new CustomSecurityExceptionHandler();
+        expressionHandler.setApplicationContext(applicationContext);
+        return expressionHandler;
     }
 
     /**
