@@ -1,0 +1,27 @@
+# Ниже представлена конфигурация для Docker
+version: '3'
+
+services:
+  app:
+    build:
+      # Сборка будет происходить из контекста
+      context: .
+    container_name: tasklist
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/tasklist?currentSchema=tasklist
+      - SPRING_DATASOURCE_USERNAME=mikhail
+      - SPRING_DATASOURCE_PASSWORD=qT4d32
+    ports:
+      - '8080:8080'
+
+  db:
+    image: postgres:15.1-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_USER=mikhail
+      - POSTGRES_PASSWORD=qT4d32
+      - POSTGRES_DB=tasklist
+    volumes:
+      - ./src/main/resources/db-init:/docker-entrypoint-initdb.d
