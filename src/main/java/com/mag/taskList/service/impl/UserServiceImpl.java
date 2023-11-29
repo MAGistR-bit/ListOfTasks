@@ -6,6 +6,10 @@ import com.mag.taskList.domain.user.User;
 import com.mag.taskList.repository.UserRepository;
 import com.mag.taskList.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +36,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "UserService::getById", key = "#id")
     public User getById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found."));
@@ -47,6 +52,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "UserService::getByUsername", key = "#username")
     public User getByUsername(String username) {
 
         return userRepository.findByUsername(username)
@@ -55,7 +61,8 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Обновляет информацию о пользователе
+     * Обновляет информацию о пользователе. Этот метод заменяет старую информацию
+     * о пользователе на новую (в кэше), поэтому используется put.
      *
      * @param user пользователь, информацию о котором, следует
      *             обновить
@@ -63,6 +70,11 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
+    @Caching(put = {
+            @CachePut(value = "UserService::getById", key = "#user.id"),
+            @CachePut(value = "UserService::getByUsername", key = "#user.username"),
+
+    })
     public User update(User user) {
         // Хэшируем "сырой" пароль
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -71,12 +83,18 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Добавляет нового пользователя в систему
+     * Добавляет нового пользователя в систему.
+     * Поскольку пользователи будут добавляться, используется cacheable.
+     *
      * @param user пользователь, который должен быть добавлен (создан)
      * @return пользователь
      */
     @Override
     @Transactional
+    @Caching(cacheable = {
+            @Cacheable(value = "UserService::getById", key = "#user.id"),
+            @Cacheable(value = "UserService::getByUsername", key = "#user.username"),
+    })
     public User create(User user) {
 
         // Проверяем существует ли такой пользователь в системе
@@ -113,17 +131,21 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "UserService::isTaskOwner", key = "#userId + '.' + #taskId")
     public boolean isTaskOwner(Long userId, Long taskId) {
         return userRepository.isTaskOwner(userId, taskId);
     }
 
     /**
-     * Удаляет пользователя по его идентификатору
+     * Удаляет пользователя по его идентификатору.
+     * Помимо этого, метод удаляет данные из кэша, используя
+     * {@link CacheEvict}
      *
      * @param id идентификатор пользователя
      */
     @Override
     @Transactional
+    @CacheEvict(value = "UserService::getById", key = "#id")
     public void delete(Long id) {
         userRepository.delete(id);
     }

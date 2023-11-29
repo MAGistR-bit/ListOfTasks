@@ -3,11 +3,12 @@ package com.mag.taskList.domain.user;
 import com.mag.taskList.domain.task.Task;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
 @Data
-public class User {
+public class User implements Serializable {
 
     private Long id;
 
