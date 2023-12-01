@@ -1,6 +1,10 @@
 # Ниже представлена конфигурация для Docker
 version: '3'
 
+volumes:
+  cache:
+    driver: local
+
 services:
   app:
     build:
@@ -25,3 +29,18 @@ services:
       - POSTGRES_DB=tasklist
     volumes:
       - ./src/main/resources/db-init:/docker-entrypoint-initdb.d
+
+  # Сервис, который будет использоваться
+  redis:
+    # Образ, который будет скачан с Docker Hub
+    image: redis:7.2-rc-alpine
+    # Перезапуск контейнера
+    restart: always
+    container_name: redis
+    ports:
+      - '6379:6379'
+    command: redis-server --save 20 1 --loglevel warning --requirepass YXNoZGtkYWxkc2QnZHc=
+    volumes:
+      # Директория, которую создаст Docker
+      - cache:/data
+

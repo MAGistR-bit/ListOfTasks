@@ -1,4 +1,16 @@
 spring:
+  cache:
+    # Тип кэша
+    type: redis
+    # Имя кэша
+    cache-names: redis-cache
+  data:
+    redis:
+      # Redis будет работать на локальной машине
+      host: localhost
+      # Стандартный порт
+      port: 6379
+      password: YXNoZGtkYWxkc2QnZHc=
   datasource:
     url: jdbc:postgresql://localhost:5432/tasklist?currentSchema=tasklist
     username: mikhail
@@ -24,5 +36,5 @@ security:
     access: 3600000
     refresh: 2592000000
 springdoc:
-# Отключаем отображение излишних ошибок (403, 404 и др.)
+  # Отключаем отображение излишних ошибок (403, 404 и др.)
   override-with-generic-response: false
