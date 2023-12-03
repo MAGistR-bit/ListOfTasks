@@ -19,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -62,18 +64,16 @@ public class JwtTokenProvider {
         claims.put("id", userId);
         claims.put("roles", resolveRoles(roles));
 
-        // Дата создания токена
-        Date now = new Date();
         // Время, когда токен перестанет быть действительным
-        Date validity = new Date(now.getTime() + jwtProperties.getAccess());
+        Instant validity = Instant.now()
+                .plus(jwtProperties.getAccess(), ChronoUnit.HOURS);
 
         // Собрать информацию в токен
         return Jwts.builder()
                 .setClaims(claims)
-                .setIssuedAt(now)           // установить дату создания токена
-                .setExpiration(validity)    // установить срок жизни токена
-                .signWith(key)              // подписать токен (с помощью ключа)
-                .compact();                 // сбор данных
+                .setExpiration(Date.from(validity))    // установить срок жизни токена
+                .signWith(key)                         // подписать токен (с помощью ключа)
+                .compact();                            // сбор данных
 
     }
 
@@ -103,16 +103,13 @@ public class JwtTokenProvider {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("id", userId);
 
-        // Дата создания токена
-        Date now = new Date();
         // Срок жизни токена
-        Date validity = new Date(now.getTime() + jwtProperties.getRefresh());
-
+        Instant validity = Instant.now()
+                .plus(jwtProperties.getRefresh(), ChronoUnit.DAYS);
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(validity)
+                .setExpiration(Date.from(validity))
                 .signWith(key)
                 .compact();
     }
@@ -192,6 +189,7 @@ public class JwtTokenProvider {
     /**
      * Предоставляем Spring Security информацию
      * о пользователе, которого мы проверили.
+     *
      * @param token токен
      * @return {@link Authentication}
      */
@@ -206,6 +204,7 @@ public class JwtTokenProvider {
 
     /**
      * Получает логин пользователя (username) из токена
+     *
      * @param token токен, который имеется в системе
      * @return логин пользователя
      */

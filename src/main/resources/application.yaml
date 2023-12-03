@@ -30,8 +30,8 @@ mybatis:
 security:
   jwt:
     secret: ${JWT_SECRET}
-    access: 3600000
-    refresh: 2592000000
+    access: 1
+    refresh: 30
 springdoc:
   # Отключаем отображение излишних ошибок (403, 404 и др.)
   override-with-generic-response: false
