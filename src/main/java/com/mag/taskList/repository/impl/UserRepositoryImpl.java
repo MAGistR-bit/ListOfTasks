@@ -3,11 +3,9 @@ package com.mag.taskList.repository.impl;
 import com.mag.taskList.domain.exception.ResourceMappingException;
 import com.mag.taskList.domain.user.Role;
 import com.mag.taskList.domain.user.User;
-import com.mag.taskList.repository.DataSourceConfig;
 import com.mag.taskList.repository.UserRepository;
 import com.mag.taskList.repository.mappers.UserRowMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
